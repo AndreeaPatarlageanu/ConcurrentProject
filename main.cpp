@@ -7,6 +7,9 @@
 #include <vector>
 #include <iostream>
 
+#include <chrono>
+using namespace std::chrono ;
+
 /**
  * constant for scoring
  * G_INIT - penalty for starting a gap
@@ -87,12 +90,19 @@ int SmithWatermanScore(unsigned char *seq1, unsigned char *seq2, int n, int m){
 
 int main() {
 
+    auto start = high_resolution_clock::now() ; 
+
     // unsigned char seq1[] = "ABDAAADB" ;
     // unsigned char seq2[] = "ADDBAABB" ;
+
     // unsigned char seq1[] = "ABDA" ;
     // unsigned char seq2[] = "ADDB" ;
-    unsigned char seq1[] = "AAA" ;
-    unsigned char seq2[] = "AAA" ;
+
+    // unsigned char seq1[] = "AAA" ;
+    // unsigned char seq2[] = "AAA" ;
+
+    unsigned char seq1[] = "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG" ;
+    unsigned char seq2[] = "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG" ;
 
     std::cout << "debug " << sizeof(seq1) << std::endl ;
 
@@ -101,6 +111,10 @@ int main() {
 
     int score = SmithWatermanScore(seq1, seq2, n, m) ;
     std::cout << "Smith Waterman Score result is " << score << std::endl ;
+
+    auto stop = high_resolution_clock::now() ;
+	auto time = duration_cast<microseconds>(stop - start) ;
+	std::cout << "Time for computation is " << time.count()/1000 << "\n" ;
 
     return 0 ;
 }
