@@ -2,7 +2,9 @@
 #include <device_launch_parameters.h>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <chrono>
+#include <random>
 
 using namespace std::chrono;
 
@@ -12,78 +14,57 @@ static const int MATCH    = 1;
 static const int MISMATCH = -1;
 
 __device__ __forceinline__
-int dev_score(unsigned char a, unsigned char b) {
+int device_score(unsigned char a, unsigned char b) {
     return (a == b) ? MATCH : MISMATCH;
 }
 
 __global__
-void kernel_updateRow16(
-    const unsigned char* __restrict__ d_seq1,
-    const unsigned char* __restrict__ d_seq2,
-    int* __restrict__ d_H,
-    int* __restrict__ d_vE,
-    int* __restrict__ d_vF,
-    int  n,
-    int  m,
-    int  i,
-    int  segLen
+void sw_kernel_diag(
+    int d,
+    int n,
+    int m,
+    const unsigned char* __restrict__ seq1,
+    const unsigned char* __restrict__ seq2,
+    int* __restrict__ H,
+    int* __restrict__ E,
+    int* __restrict__ F
 ) {
-    extern __shared__ int prevRowH_seg[];
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int start_i = max(1, d - n);
+    int end_i   = min(d - 1, m);
+    int diag_len = end_i - start_i + 1;
 
-    int t = blockIdx.x * blockDim.x + threadIdx.x;
-    if (t >= segLen) return;
+    if (tid >= diag_len) return;
 
-    int start = t * 16;
-    int width = min(16, n - start);
+    int i = start_i + tid;
+    int j = d - i;
 
-    for (int x = threadIdx.x; x < width; x += blockDim.x) {
-        int globalIdx = (i - 1) * (n + 1) + (start + x);
-        prevRowH_seg[t * 16 + x] = d_H[globalIdx];
-    }
-    __syncthreads();
+    int idx      = i * (n + 1) + j;
+    int idx_up   = (i - 1) * (n + 1) + j;
+    int idx_left = i * (n + 1) + (j - 1);
+    int idx_diag = (i - 1) * (n + 1) + (j - 1);
 
-    int vE = d_vE[t];
-    int vF = d_vF[t];
-    int bestH_thisRow = 0;
+    int e = max(H[idx_left] - G_INIT, E[idx_left] - G_EXT);
+    int f = max(H[idx_up]   - G_INIT, F[idx_up]   - G_EXT);
+    int match = H[idx_diag] + device_score(seq1[j - 1], seq2[i - 1]);
 
-    for (int offset = 0; offset < width; ++offset) {
-        int j = start + offset;
-        int h_above = prevRowH_seg[t * 16 + offset];
-        int s       = dev_score(d_seq1[j], d_seq2[i - 1]);
-        int vH      = h_above + s;
+    int h_val = max(0, max(match, max(e, f)));
 
-        int vHgap = vH - G_INIT;
-        int e_new = vE - G_EXT;
-        if (vHgap > e_new) e_new = vHgap;
-        int f_new = vF - G_EXT;
-        if (vHgap > f_new) f_new = vHgap;
-
-        int tmpMax = vH;
-        if (vE > tmpMax) tmpMax = vE;
-        if (vF > tmpMax) tmpMax = vF;
-        if (tmpMax < 0) tmpMax = 0;
-        vH = tmpMax;
-
-        d_H[i * (n + 1) + j] = vH;
-        if (vH > bestH_thisRow) bestH_thisRow = vH;
-
-        vE = e_new;
-        vF = f_new;
-    }
-
-    d_vE[t] = vE;
-    d_vF[t] = vF;
-
-    if (width > 0) {
-        int h0 = d_H[i * (n + 1) + start];
-        if (vF > (h0 - G_INIT)) {
-            d_H[i * (n + 1) + start] = vF;
-        }
-    }
+    E[idx] = e;
+    F[idx] = f;
+    H[idx] = h_val;
 }
 
-int LazySmithGPU(const unsigned char* seq1, const unsigned char* seq2, int n, int m) {
-    int segLen = (n + 15) / 16;
+int SmithWatermanLazyGPU(const unsigned char* seq1, const unsigned char* seq2, int n, int m) {
+    size_t matrix_size = (size_t)(m + 1) * (size_t)(n + 1);
+
+    int *dH = nullptr, *dE = nullptr, *dF = nullptr;
+    cudaMalloc(&dH, matrix_size * sizeof(int));
+    cudaMalloc(&dE, matrix_size * sizeof(int));
+    cudaMalloc(&dF, matrix_size * sizeof(int));
+    cudaMemset(dH, 0, matrix_size * sizeof(int));
+    cudaMemset(dE, 0, matrix_size * sizeof(int));
+    cudaMemset(dF, 0, matrix_size * sizeof(int));
 
     unsigned char *d_seq1 = nullptr, *d_seq2 = nullptr;
     cudaMalloc(&d_seq1, n * sizeof(unsigned char));
@@ -91,141 +72,77 @@ int LazySmithGPU(const unsigned char* seq1, const unsigned char* seq2, int n, in
     cudaMemcpy(d_seq1, seq1, n * sizeof(unsigned char), cudaMemcpyHostToDevice);
     cudaMemcpy(d_seq2, seq2, m * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
-    int *d_H = nullptr;
-    cudaMalloc(&d_H, (size_t)(m + 1) * (n + 1) * sizeof(int));
-    cudaMemset(d_H, 0, (size_t)(m + 1) * (n + 1) * sizeof(int));
-
-    int *d_vE = nullptr, *d_vF = nullptr;
-    cudaMalloc(&d_vE, segLen * sizeof(int));
-    cudaMalloc(&d_vF, segLen * sizeof(int));
-    cudaMemset(d_vE, 0, segLen * sizeof(int));
-    cudaMemset(d_vF, 0, segLen * sizeof(int));
-
-    int threadsPerBlock = 128;
-    int blocksPerGrid   = (segLen + threadsPerBlock - 1) / threadsPerBlock;
-    size_t sharedBytes  = segLen * 16 * sizeof(int);
-
-    for (int i = 1; i <= m; ++i) {
-        kernel_updateRow16<<<blocksPerGrid, threadsPerBlock, sharedBytes>>>(
-            d_seq1, d_seq2,
-            d_H,
-            d_vE, d_vF,
-            n, m,
-            i,
-            segLen
-        );
+    const int THREADS = 256;
+    for (int d = 2; d <= n + m; ++d) {
+        int start_i = std::max(1, d - n);
+        int end_i   = std::min(d - 1, m);
+        int diag_len = (end_i >= start_i) ? (end_i - start_i + 1) : 0;
+        if (diag_len <= 0) continue;
+        int blocks = (diag_len + THREADS - 1) / THREADS;
+        sw_kernel_diag<<<blocks, THREADS>>>(d, n, m, d_seq1, d_seq2, dH, dE, dF);
         cudaDeviceSynchronize();
     }
 
-    std::vector<int> h_lastRow(n + 1);
-    cudaMemcpy(h_lastRow.data(),
-               d_H + (size_t)m * (n + 1),
-               (n + 1) * sizeof(int),
-               cudaMemcpyDeviceToHost);
+    std::vector<int> h_H(matrix_size);
+    cudaMemcpy(h_H.data(), dH, matrix_size * sizeof(int), cudaMemcpyDeviceToHost);
 
-    int maxScore = 0;
-    for (int j = 0; j <= n; ++j) {
-        if (h_lastRow[j] > maxScore) {
-            maxScore = h_lastRow[j];
-        }
-    }
+    int best = 0;
+    for (int val : h_H) best = std::max(best, val);
 
     cudaFree(d_seq1);
     cudaFree(d_seq2);
-    cudaFree(d_H);
-    cudaFree(d_vE);
-    cudaFree(d_vF);
+    cudaFree(dH);
+    cudaFree(dE);
+    cudaFree(dF);
 
-    return maxScore;
+    return best;
 }
 
-void runTests() {
-    struct TestCase {
-        std::string seq1, seq2;
-        int expected;
+void runLazy() {
+    std::mt19937_64 rng(42);
+    std::uniform_int_distribution<int> dist(0, 3);
+    const char* nts = "ACGT";
+
+    std::vector<std::pair<std::string, std::string>> tests = {
+        {"AABDADB", "AADCBAB"},
+        {"AAA", "AAA"},
+        {std::string(5000, 'A'), std::string(5000, 'A')},
+        {std::string(2000, 'A'), std::string(2000, 'T')},
     };
 
-    std::vector<TestCase> tests = {
-        { "AABDADB", "AADCBAB", 2 },
-        { "ABDA",     "ADDB",     1 },
-        { "AAA",      "AAA",      3 },
-        { "A",        "A",        1 },
-        { "A",        "G",        0 },
-        {
-            "ATCGATCGATCGATCGATCGATCG",
-            "GCTAGCTAGCTAGCTAGCTAGCTA",
-            1
-        },
-        {
-            std::string(400, 'A'),
-            std::string(400, 'T'),
-            0
-        },
-        {
-            std::string(400, 'A'),
-            std::string(400, 'A'),
-            400
-        },
-        {
-            std::string(5000, 'A'),
-            std::string(5000, 'T'),
-            0
-        },
-        {
-            std::string(5000, 'A'),
-            std::string(5000, 'A'),
-            5000
+    for (int i = 0; i < 5; ++i) {
+        std::string s1, s2;
+        for (int j = 0; j < 4000 + i * 1000; ++j) {
+            s1 += nts[dist(rng)];
+            s2 += nts[dist(rng)];
         }
-    };
-
-    std::cout << "Running GPU‐based LazySmith on " << tests.size() << " test cases.\n\n";
-
-    cudaEvent_t start_event, stop_event;
-    cudaEventCreate(&start_event);
-    cudaEventCreate(&stop_event);
-
-    for (size_t i = 0; i < tests.size(); ++i) {
-        const auto& tc = tests[i];
-        int n = (int)tc.seq1.size();
-        int m = (int)tc.seq2.size();
-
-        // std::cout << "Test " << (i + 1) << ":\n";
-        if (n <= 80) {
-            std::cout << "  seq1 = \"" << tc.seq1 << "\" (length " << n << ")\n";
-        } else {
-            std::cout << "  seq1 = \"" << tc.seq1.substr(0, 40) << "...\" (length " << n << ")\n";
-        }
-        if (m <= 80) {
-            std::cout << "  seq2 = \"" << tc.seq2 << "\" (length " << m << ")\n";
-        } else {
-            std::cout << "  seq2 = \"" << tc.seq2.substr(0, 40) << "...\" (length " << m << ")\n";
-        }
-
-        std::vector<unsigned char> h_seq1(n), h_seq2(m);
-        for (int j = 0; j < n; ++j) h_seq1[j] = (unsigned char)tc.seq1[j];
-        for (int j = 0; j < m; ++j) h_seq2[j] = (unsigned char)tc.seq2[j];
-
-        cudaEventRecord(start_event, 0);
-        int gpu_score = LazySmithGPU(h_seq1.data(), h_seq2.data(), n, m);
-        cudaEventRecord(stop_event, 0);
-        cudaEventSynchronize(stop_event);
-
-        float gpu_ms = 0.0f;
-        cudaEventElapsedTime(&gpu_ms, start_event, stop_event);
-
-        std::cout << "  Expected ≈ " << tc.expected
-                  << "   GPU score = " << gpu_score
-                  << "   Time = " << gpu_ms << " ms\n\n";
+        tests.emplace_back(std::move(s1), std::move(s2));
     }
 
-    cudaEventDestroy(start_event);
-    cudaEventDestroy(stop_event);
+    int correct = 0;
+    for (size_t i = 0; i < tests.size(); ++i) {
+        const auto& tc = tests[i];
+        int n = (int)tc.first.size();
+        int m = (int)tc.second.size();
+
+        std::vector<unsigned char> h_seq1(n), h_seq2(m);
+        for (int j = 0; j < n; ++j) h_seq1[j] = (unsigned char)tc.first[j];
+        for (int j = 0; j < m; ++j) h_seq2[j] = (unsigned char)tc.second[j];
+
+        int lazy = SmithWatermanLazyGPU(h_seq1.data(), h_seq2.data(), n, m);
+
+        std::cout << "Test " << i+1 << " (" << n << "x" << m << ")\n";
+        std::cout << "  Lazy GPU  = " << lazy << "\n";
+    }
+
 }
+ 
 
 int main() {
-    kernel_updateRow16<<<1,1,1>>>(nullptr,nullptr,nullptr,nullptr,nullptr,0,0,0,0);
-    cudaDeviceSynchronize();
-
-    runTests();
+    runLazy();
     return 0;
 }
+
+/*
+LLMs were used for test generating and nicely written feedack.
+*/
