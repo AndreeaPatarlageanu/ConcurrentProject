@@ -25,14 +25,14 @@ const int MISMATCH = -1 ;
 /**
  * in article, score W <= 0 if mismatch, W > 0 if match
  */
-int score(unsigned char s1, unsigned char s2) {
+int score4(unsigned char s1, unsigned char s2) {
     if (s1 == s2) {
         return MATCH;
     }
     return MISMATCH;
 }
 
-void leftRotation(std::vector<int> &vector) {
+void leftRotation3(std::vector<int> &vector) {
 
     int n = vector.size() ;
     int temp = vector[0] ;
@@ -45,7 +45,7 @@ void leftRotation(std::vector<int> &vector) {
 /**
  * Original LazySmith function - one chunk
  */
-int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
+int LazySmithInit(unsigned char *seq1, unsigned char *seq2, int n, int m){
     std::vector<int> vHLoad(n + 1, 0), vHStore(n + 1, 0), vE(n + 1, 0), vF(n + 1, 0);
     int segLen = (n + 15) / 16;
     int dbLen = m;
@@ -60,7 +60,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
         for(int j = 0; j < segLen; j++) {
             // Safely compute score
             // int s = (j < n && i < m) ? score(seq1[j], seq2[i]) : 0;
-            int s = score(seq1[j], seq2[i]) ;
+            int s = score4(seq1[j], seq2[i]) ;
             vH += s;
 
             // Update max score
@@ -86,7 +86,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
         }
 
         // // --- Lazy-F Loop ---
-        leftRotation(vF) ;
+        leftRotation3(vF) ;
 
         int j = 0;
         while (std::any_of(vF.begin(), vF.end(), [&](int f){ return f > (vHStore[j] - G_INIT); })) {
@@ -95,7 +95,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
             vF[j] -= G_EXT;
 
             if (++j >= segLen) {
-                leftRotation(vF) ;
+                leftRotation3(vF) ;
                 j = 0;
             }
         }
@@ -121,7 +121,7 @@ int ParallelLazySmith_futures( unsigned char *seq1, unsigned char *seq2, int n, 
     
     //in case we have have only one thread, then we apply the normal version
     if( num_threads <= 1 )
-        return LazySmith( seq1, seq2, n, m );
+        return LazySmithInit( seq1, seq2, n, m );
     
 
     //which DNA sequence to split up between threads for parallel processing
@@ -160,7 +160,7 @@ int ParallelLazySmith_futures( unsigned char *seq1, unsigned char *seq2, int n, 
             int chunk_len = end - beginning;
             
             futures.push_back( std::async( std::launch::async, [=]() {
-                return LazySmith( seq1 + beginning, seq2, chunk_len, m );
+                return LazySmithInit( seq1 + beginning, seq2, chunk_len, m );
             }));
         }
     } 
@@ -179,7 +179,7 @@ int ParallelLazySmith_futures( unsigned char *seq1, unsigned char *seq2, int n, 
             int chunk_len = end - beginning;
             
             futures.push_back( std::async( std::launch::async, [=]() {
-                return LazySmith( seq1, seq2 + beginning, n, chunk_len );
+                return LazySmithInit( seq1, seq2 + beginning, n, chunk_len );
             }));
         }
     }
@@ -193,7 +193,7 @@ int ParallelLazySmith_futures( unsigned char *seq1, unsigned char *seq2, int n, 
     return max_global_score;
 }
 
-void runTests() {
+/*void runTests() {
     struct TestCase {
         std::string seq1, seq2;
         int expected_value;
@@ -271,13 +271,14 @@ void runTests() {
     }
 
     std::cout << "Summary: " << passed << "/" << tests.size() << " serial tests passed.\n";
-}
+}*/
 
-int main() {
+
+/*int main() {
 
     runTests();
     return 0 ;
-}
+}*/
 
 // Compile with: g++ -std=c++17 -O2 -pthread -o parallel_lazysmith lazySmith_parallel.cpp
 // ./parallel_lazysmith

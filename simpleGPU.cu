@@ -106,7 +106,7 @@ void DPMatrices(unsigned char *seq1, unsigned char *seq2, int *E, int *F, int *H
 
 }
 
-int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) {
+extern "C" int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) {
 
     int blockSize = 256 ;
     int maxSize = max(n+1, m+1) ;

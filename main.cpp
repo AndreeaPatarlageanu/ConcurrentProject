@@ -137,7 +137,7 @@ void runTests() {
     std::cout << "\nSummary: " << passed << "/" << tests.size() << " tests passed.\n";
 }
 
-int main() {
+/*int main() {
 
     // auto start = high_resolution_clock::now() ; 
 
@@ -168,7 +168,7 @@ int main() {
     // return 0 ;
     runTests();
     return 0;
-}
+}*/
 
 // g++ -std=c++17 -O2 -o smith_test main.cpp
 // ./smith_test

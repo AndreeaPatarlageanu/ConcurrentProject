@@ -25,7 +25,7 @@ const int MISMATCH = -1 ;
 /**
  * in article, score W <= 0 if mismatch, W > 0 if match
  */
-int score(unsigned char s1, unsigned char s2) {
+int score2(unsigned char s1, unsigned char s2) {
     if (s1 == s2) {
         return MATCH ;
     }
@@ -61,7 +61,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
         for(int j = 0; j < segLen; j++) {
             // Safely compute score
             // int s = (j < n && i < m) ? score(seq1[j], seq2[i]) : 0;
-            int s = score(seq1[j], seq2[i]) ;
+            int s = score2(seq1[j], seq2[i]) ;
             vH += s;
 
             // Update max score
@@ -91,7 +91,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
 
         int j = 0;
         while (std::any_of(vF.begin(), vF.end(), [&](int f){ return f > (vHStore[j] - G_INIT); })) {
-            std::cout<<"debug while loop"<<std::endl ;
+            // std::cout<<"debug while loop"<<std::endl ;
             vHStore[j] = std::max(vHStore[j], vF[j]);
             vF[j] -= G_EXT;
 
@@ -105,7 +105,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
     return maxScore;
 }
 
-void runTests() {
+/*void runTests() {
     struct TestCase {
         std::string seq1, seq2;
         int expected_value;
@@ -151,10 +151,10 @@ void runTests() {
     }
 
     std::cout << "\nSummary: " << passed << "/" << tests.size() << " tests passed.\n";
-}
+}*/
 
 
-int main() {
+/*int main() {
 
     // auto start = high_resolution_clock::now() ; 
 
@@ -183,7 +183,7 @@ int main() {
 	// std::cout << "Time for computation is " << time.count()/1000 << "\n" ;
     runTests();
     return 0 ;
-}
+}*/
 
 // g++ -std=c++17 -O2 -o lazysmith_test lazySmith.cpp
 // ./lazysmith_test
