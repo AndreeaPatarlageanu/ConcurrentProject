@@ -106,7 +106,7 @@ void DPMatrices(unsigned char *seq1, unsigned char *seq2, int *E, int *F, int *H
 
 }
 
-int SmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) {
+int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) {
 
     int blockSize = 256 ;
     int maxSize = max(n+1, m+1) ;
@@ -201,7 +201,7 @@ int main() {
 
     auto start_1 = high_resolution_clock::now() ; 
     std::cout << "TEST 1" << std::endl ;
-    int score_1 = SmithWatermanScoreGPU(seq1_1, seq2_1, n_1, m_1) ;
+    int score_1 = SequentialSmithWatermanScoreGPU(seq1_1, seq2_1, n_1, m_1) ;
     std::cout << "Smith Waterman Score result is " << score_1 << std::endl ;
     auto stop_1 = high_resolution_clock::now() ;
 	auto time_1 = duration_cast<microseconds>(stop_1 - start_1) ;
@@ -209,7 +209,7 @@ int main() {
 
     auto start_2 = high_resolution_clock::now() ; 
     std::cout << "TEST 2" << std::endl ;
-    int score_2 = SmithWatermanScoreGPU(seq1_2, seq2_2, n_2, m_2) ;
+    int score_2 = SequentialSmithWatermanScoreGPU(seq1_2, seq2_2, n_2, m_2) ;
     std::cout << "Smith Waterman Score result is " << score_2 << std::endl ;
     auto stop_2 = high_resolution_clock::now() ;
 	auto time_2 = duration_cast<microseconds>(stop_2 - start_2) ;
@@ -217,7 +217,7 @@ int main() {
 
     auto start_3 = high_resolution_clock::now() ; 
     std::cout << "TEST 3" << std::endl ;
-    int score_3 = SmithWatermanScoreGPU(seq1_3, seq2_3, n_3, m_3) ;
+    int score_3 = SequentialSmithWatermanScoreGPU(seq1_3, seq2_3, n_3, m_3) ;
     std::cout << "Smith Waterman Score result is " << score_3 << std::endl ;
     auto stop_3 = high_resolution_clock::now() ;
 	auto time_3 = duration_cast<microseconds>(stop_3 - start_3) ;
@@ -225,7 +225,7 @@ int main() {
 
     auto start_4 = high_resolution_clock::now() ; 
     std::cout << "TEST 4" << std::endl ;
-    int score_4 = SmithWatermanScoreGPU(seq1_4, seq2_4, n_4, m_4) ;
+    int score_4 = SequentialSmithWatermanScoreGPU(seq1_4, seq2_4, n_4, m_4) ;
     std::cout << "Smith Waterman Score result is " << score_4 << std::endl ;
     auto stop_4 = high_resolution_clock::now() ;
 	auto time_4 = duration_cast<microseconds>(stop_4 - start_4) ;
@@ -233,7 +233,7 @@ int main() {
 
     auto start_5 = high_resolution_clock::now() ; 
     std::cout << "TEST 5" << std::endl ;
-    int score_5 = SmithWatermanScoreGPU(seq1_5, seq2_5, n_5, m_5) ;
+    int score_5 = SequentialSmithWatermanScoreGPU(seq1_5, seq2_5, n_5, m_5) ;
     std::cout << "Smith Waterman Score result is " << score_5 << std::endl ;
     auto stop_5 = high_resolution_clock::now() ;
 	auto time_5 = duration_cast<microseconds>(stop_5 - start_5) ;
