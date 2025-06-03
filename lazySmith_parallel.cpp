@@ -115,7 +115,7 @@ int LazySmith(unsigned char *seq1, unsigned char *seq2, int n, int m){
  * @param num_threads Number of threads to use
  * @param chunk_strategy 0=chunk seq1, 1=chunk seq2, 2=chunk longer sequence
  */
-int ParallelLazySmith( unsigned char *seq1, unsigned char *seq2, int n, int m, 
+int ParallelLazySmith_futures( unsigned char *seq1, unsigned char *seq2, int n, int m, 
                       int num_threads = std::thread::hardware_concurrency(),
                       int chunkStrategy = 2 ) {
     
@@ -242,7 +242,7 @@ void runTests() {
 
         //Test parallel version(fast one)
         auto start_parallel = high_resolution_clock::now();
-        int parallel_score = ParallelLazySmith(
+        int parallel_score = ParallelLazySmith_futures(
             (unsigned char*)t.seq1.c_str(),
             (unsigned char*)t.seq2.c_str(),
             t.seq1.size(),
