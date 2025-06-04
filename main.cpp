@@ -25,7 +25,7 @@ const int MISMATCH = -1 ;
 /**
  * in article, score W <= 0 if mismatch, W > 0 if match
  */
-int score1(unsigned char s1, unsigned char s2) {
+int score(unsigned char s1, unsigned char s2) {
     if (s1 == s2) {
         return MATCH ;
     }
@@ -59,7 +59,7 @@ void dpMatrices(std::vector<std::vector<int>> &E, std::vector<std::vector<int>> 
 
             // my code
             int temp1 = std::max ( F[i][j], E[i][j] ) ;
-            int temp2 = std::max( 0, H[i-1][j-1] + score1(q[j-1], d[i-1])) ; // careful to index! i and j start at 1
+            int temp2 = std::max( 0, H[i-1][j-1] + score(q[j-1], d[i-1])) ; // careful to index! i and j start at 1
             H[i][j] = std::max( temp1, temp2 ) ;
 
         }
@@ -89,86 +89,86 @@ int SmithWatermanScore(unsigned char *seq1, unsigned char *seq2, int n, int m){
     return maxScore ;
 }
 
-// void runTests() {
-//     struct TestCase {
-//         std::string seq1, seq2;
-//         int expected_value;
-//     };
+void runTests() {
+    struct TestCase {
+        std::string seq1, seq2;
+        int expected_value;
+    };
 
-//     std::vector<TestCase> tests = {
-//         { "ABDAAADB", "ADDBAABB", 2 },
-//         { "ABDA", "ADDB", 1 },
-//         { "AAA", "AAA", 3 },
-//         { "A", "A", 1 },
-//         { "A", "G", 0 },
-//         {
-//             "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG",
-//             "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG",
-//             1
-//         }
-//     };
+    std::vector<TestCase> tests = {
+        { "ABDAAADB", "ADDBAABB", 2 },
+        { "ABDA", "ADDB", 1 },
+        { "AAA", "AAA", 3 },
+        { "A", "A", 1 },
+        { "A", "G", 0 },
+        {
+            "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG",
+            "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG",
+            1
+        }
+    };
 
-//     int passed = 0;
-//     std::cout << "Starting " << tests.size() << " tests:\n";
+    int passed = 0;
+    std::cout << "Starting " << tests.size() << " tests:\n";
 
-//     for (size_t i = 0; i < tests.size(); ++i) {
-//         const auto& t = tests[i];
-//         auto start = high_resolution_clock::now();
+    for (size_t i = 0; i < tests.size(); ++i) {
+        const auto& t = tests[i];
+        auto start = high_resolution_clock::now();
 
-//         int score = SmithWatermanScore(
-//             (unsigned char*)t.seq1.c_str(),
-//             (unsigned char*)t.seq2.c_str(),
-//             t.seq1.size(),
-//             t.seq2.size()
-//         );
+        int score = SmithWatermanScore(
+            (unsigned char*)t.seq1.c_str(),
+            (unsigned char*)t.seq2.c_str(),
+            t.seq1.size(),
+            t.seq2.size()
+        );
 
-//         auto end = high_resolution_clock::now();
-//         auto duration = duration_cast<microseconds>(end - start);
+        auto end = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(end - start);
 
-//         bool correct = (score == t.expected_value);
-//         if (correct) ++passed;
+        bool correct = (score == t.expected_value);
+        if (correct) ++passed;
 
-//         std::cout << "Test " << i + 1 << ": " << (correct ? "Passed" : "Failed")
-//                   << " | Expected = " << t.expected_value
-//                   << ", Got = " << score
-//                   << " | Time = " << duration.count() / 1000.0 << " ms\n";
-//     }
+        std::cout << "Test " << i + 1 << ": " << (correct ? "Passed" : "Failed")
+                  << " | Expected = " << t.expected_value
+                  << ", Got = " << score
+                  << " | Time = " << duration.count() / 1000.0 << " ms\n";
+    }
 
-//     std::cout << "\nSummary: " << passed << "/" << tests.size() << " tests passed.\n";
-// }
+    std::cout << "\nSummary: " << passed << "/" << tests.size() << " tests passed.\n";
+}
 
-// int main() {
+int main() {
 
-//     // auto start = high_resolution_clock::now() ; 
+    // auto start = high_resolution_clock::now() ; 
 
-//     // // unsigned char seq1[] = "ABDAAADB" ;
-//     // // unsigned char seq2[] = "ADDBAABB" ;
+    // // unsigned char seq1[] = "ABDAAADB" ;
+    // // unsigned char seq2[] = "ADDBAABB" ;
 
-//     // // unsigned char seq1[] = "ABDA" ;
-//     // // unsigned char seq2[] = "ADDB" ;
+    // // unsigned char seq1[] = "ABDA" ;
+    // // unsigned char seq2[] = "ADDB" ;
 
-//     // // unsigned char seq1[] = "AAA" ;
-//     // // unsigned char seq2[] = "AAA" ;
+    // // unsigned char seq1[] = "AAA" ;
+    // // unsigned char seq2[] = "AAA" ;
 
-//     // unsigned char seq1[] = "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG" ;
-//     // unsigned char seq2[] = "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG" ;
+    // unsigned char seq1[] = "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG" ;
+    // unsigned char seq2[] = "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG" ;
 
-//     // std::cout << "debug " << sizeof(seq1) << std::endl ;
+    // std::cout << "debug " << sizeof(seq1) << std::endl ;
 
-//     // int n = sizeof(seq1) - 1 ; 
-//     // int m = sizeof(seq2) - 1 ;
+    // int n = sizeof(seq1) - 1 ; 
+    // int m = sizeof(seq2) - 1 ;
 
-//     // int score = SmithWatermanScore(seq1, seq2, n, m) ;
-//     // std::cout << "Smith Waterman Score result is " << score << std::endl ;
+    // int score = SmithWatermanScore(seq1, seq2, n, m) ;
+    // std::cout << "Smith Waterman Score result is " << score << std::endl ;
 
-//     // auto stop = high_resolution_clock::now() ;
-// 	// auto time = duration_cast<microseconds>(stop - start) ;
-// 	// std::cout << "Time for computation is " << time.count()/1000 << "\n" ;
+    // auto stop = high_resolution_clock::now() ;
+	// auto time = duration_cast<microseconds>(stop - start) ;
+	// std::cout << "Time for computation is " << time.count()/1000 << "\n" ;
 
-//     // return 0 ;
-//     runTests();
-//     return 0;
-// }
+    // return 0 ;
+    runTests();
+    return 0;
+}
 
 // g++ -std=c++17 -O2 -o smith_test main.cpp
 // ./smith_test
