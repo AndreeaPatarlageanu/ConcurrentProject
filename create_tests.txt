@@ -1,0 +1,16 @@
+#pragma once
+#include <climits>
+#include <thread>
+#include <numeric>
+#include <iterator>
+#include <optional>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <future>
+#include <chrono>
+using namespace std::chrono;
+
+std::string seq1, seq2;
+
+for( int i )
