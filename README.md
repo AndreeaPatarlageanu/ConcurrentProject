@@ -1,6 +1,27 @@
 # ConcurrentProject
 CSE305 Project: Parallel sequence alignment
 
+# Organisation of the project and comments
+
+# Differents files
+
+### CPU
+- `main.cpp` is the first sequential implementation of the parallel sequence alignement on CPU
+- `lazySmith.cpp` is the sequential implementation of the Lazy Smith Algorithm
+- `lazySmith_parallel_threads.cpp` is the parallel version of the Lazy Smith algorithm using threads
+- `lazySmith_parallel_future.cpp` is the parallel version of the Lazy Smith algorithm using `future` but it is **NOT WORKING**
+
+### GPU
+
+### Testing
+- `TestFile.cpp`
+- `TestFileWithGPU.cpp`
+- `Makefile1`
+- `Makefile2`
+- `algoCPU.h`
+- `algoGPU.h`
+
+
 # Testing
 
 We have two main testing files, which indicates the SUCCESS of the computations (success corresponds to the equality of all computed scores, we get an ERROR otherwise), the time for computations, and the speed-up for each method compared to the simple sequential version). 
