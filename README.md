@@ -12,14 +12,16 @@ CSE305 Project: Parallel sequence alignment
 - `lazySmith_parallel_future.cpp` is the parallel version of the Lazy Smith algorithm using `future` but it is **NOT WORKING**
 
 ### GPU
+- `simpleGPU.cu` the simple sequential implementation on GPU
+- `cudaSmithM.cu` a second version of the simple sequential implementation on GPU (we had a miscommunication and both of us took that approach on GPU)
 
 ### Testing
-- `TestFile.cpp`
-- `TestFileWithGPU.cpp`
-- `Makefile1`
-- `Makefile2`
-- `algoCPU.h`
-- `algoGPU.h`
+- `Makefile1` the makefile for testing on CPU only (run `make -f Makefile1`)
+- `Makefile2` the makefile for testing on CPU and GPU (run `make -f Makefile2`)
+- `TestFile.cpp` the testing file for CPU (run `./test_runner1` after compiling)
+- `TestFileWithGPU.cpp` the testing file for CPU and GPU (run `./test_runner2` after compiling)
+- `algoCPU.h` the header file for .cpp files
+- `algoGPU.h` the header file for .cu files 
 
 
 # Testing
