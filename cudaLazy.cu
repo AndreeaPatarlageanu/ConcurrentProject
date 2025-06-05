@@ -55,7 +55,7 @@ void sw_kernel_diag(
     H[idx] = h_val;
 }
 
-int SmithWatermanLazyGPU(const unsigned char* seq1, const unsigned char* seq2, int n, int m) {
+extern "C" int SmithWatermanLazyGPU(const unsigned char* seq1, const unsigned char* seq2, int n, int m) {
     size_t matrix_size = (size_t)(m + 1) * (size_t)(n + 1);
 
     int *dH = nullptr, *dE = nullptr, *dF = nullptr;
@@ -138,7 +138,7 @@ void runLazy() {
 }
  
 
-int main() {
-    runLazy();
-    return 0;
-}
+// int main() {
+//     runLazy();
+//     return 0;
+// }

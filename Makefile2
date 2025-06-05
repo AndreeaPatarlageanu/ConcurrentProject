@@ -1,0 +1,41 @@
+# Compilers
+CXX := g++
+NVCC := nvcc
+
+# Compiler flags
+CXXFLAGS := -std=c++17 -O2 -I.
+# NVCCFLAGS := -O2 -Xcompiler -fPIC
+NVCC := /usr/local/cuda-12.6.3/bin/nvcc
+
+# Executable name
+TARGET := test_runner2
+
+# Source files
+CPP_SRCS := TestFileWithGPU.cpp main.cpp lazySmith.cpp lazySmith_parallel_threads.cpp
+CU_SRCS := simpleGPU.cu cudaLazy.cu cudaSmithM.cu
+
+# Object files
+CPP_OBJS := $(CPP_SRCS:.cpp=.o)
+CU_OBJS := $(CU_SRCS:.cu=.o)
+OBJS := $(CPP_OBJS) $(CU_OBJS)
+
+# Default target
+all: $(TARGET)
+
+# Link with nvcc (not g++) to include CUDA runtime properly
+$(TARGET): $(OBJS)
+	$(NVCC) -o $@ $^ $(NVCCFLAGS)
+
+# Compile C++ files to object files
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile CUDA files to object files
+%.o: %.cu
+	$(NVCC) $(NVCCFLAGS) -c $< -o $@
+
+# Clean rule
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+.PHONY: all clean

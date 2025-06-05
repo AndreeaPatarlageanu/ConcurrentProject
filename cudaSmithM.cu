@@ -125,7 +125,7 @@ void kernel_compute_diagonal(
     dH[idx] = h_val;
 }
 
-int SmithWatermanScoreCUDA(
+extern "C" int SmithWatermanScoreCUDA(
     const unsigned char* seq1,
     const unsigned char* seq2,
     int n,
@@ -193,7 +193,7 @@ int SmithWatermanScoreCUDA(
 //                           Main / Timing
 // ------------------------------------------------------------
 
-int main() {
+/*int main() {
     const int NUM_EXAMPLES = 10;
     const int SEQ_LENGTH   = 4096; 
 
@@ -268,7 +268,7 @@ int main() {
     cudaEventDestroy(stop_event);
 
     return 0;
-}
+}*/
 
 
 /*

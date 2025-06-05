@@ -106,7 +106,7 @@ void DPMatrices(unsigned char *seq1, unsigned char *seq2, int *E, int *F, int *H
 
 }
 
-int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) {
+extern "C" int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) {
 
     int blockSize = 256 ;
     int maxSize = max(n+1, m+1) ;
@@ -162,7 +162,7 @@ int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, in
 
 }
 
-int main() {
+/*int main() {
 
     // to warm up the GPU as we did in TD3
     warmup<<<1, 1>>>() ;
@@ -240,4 +240,4 @@ int main() {
 	std::cout << "Time for computation is " << time_5.count()/1000 << "\n" ;
 
     return 0 ;
-} ;
+} ;*/
