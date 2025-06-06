@@ -1,7 +1,13 @@
 # ConcurrentProject
 CSE305 Project: Parallel sequence alignment
 
+**Authors:** Andreea Patarlageanu, Marta Teodora Trales, Joanne Jegou
+
+During this project, we worked on **local** parallel sequence alignement with **affine gap penalty**. We focused on the computation of the score and not the alignement it-self. We implemented the Smith-Waterman algorithm, which is a dynamic programming algorithm. Because of that, parallelization of this algorithm requires some thinking. We first implemented a simple sequential version on CPU, then we introduced the lazy computation of the matrices. We worked on parallelizing those algorithms, and executing them on GPU.
+
 # Organisation of the project and comments
+
+Please note that the commits on Github are not completely representative of the work done by each of the group members, as Andreea and Joanne wrote together some of the files but committed from a single computer.
 
 # Differents files
 
