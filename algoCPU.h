@@ -16,12 +16,4 @@ int ParallelLazySmith_futures( unsigned char *seq1, unsigned char *seq2, int n, 
                       int num_threads = std::thread::hardware_concurrency(),
                       int chunkStrategy = 2 ) ;
 
-// simpleGPU.cu
-int SequentialSmithWatermanScoreGPU(unsigned char *seq1, unsigned char *seq2, int n, int m) ;
-
-// cudaSmithM.cu
-int SmithWatermanScoreCUDA(const unsigned char* seq1, const unsigned char* seq2, int n, int m) ; 
-
-// cudaLazy.cu
-int LazySmithGPU(const unsigned char* seq1, const unsigned char* seq2, int n, int m) ;
 

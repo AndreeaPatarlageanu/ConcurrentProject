@@ -26,7 +26,7 @@ const int MISMATCH = -1 ;
  * in article, score W <= 0 if mismatch, W > 0 if match
  */
 __device__
-int score(unsigned char s1, unsigned char s2) {
+int scoreGPU(unsigned char s1, unsigned char s2) {
     if (s1 == s2) {
         return MATCH ;
     }
@@ -93,7 +93,7 @@ void DPMatrices(unsigned char *seq1, unsigned char *seq2, int *E, int *F, int *H
         int e = maxElement(E[index_prevCol] - G_EXT, H[index_prevCol] - G_INIT) ;
         int f = maxElement(F[index_prevRow] - G_EXT, H[index_prevRow] - G_INIT) ;
 
-        int s = score(seq1[column - 1], seq2[row - 1]) ;
+        int s = scoreGPU(seq1[column - 1], seq2[row - 1]) ;
         int temp1 = maxElement(e, f) ;
         int temp2 = maxElement(0, H[index_prevColRow] + s) ;
         int h = maxElement( temp1, temp2 ) ;
