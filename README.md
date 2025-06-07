@@ -20,6 +20,7 @@ Please note that the commits on Github are not completely representative of the 
 ### GPU
 - `simpleGPU.cu` the simple sequential implementation on GPU
 - `cudaSmithM.cu` a second version of the simple sequential implementation on GPU (we had a miscommunication and both of us took that approach on GPU)
+- `cudaLazy.cpp` the parallelised lazy implementation of the algorithm on GPU
 
 ### Testing
 - `Makefile1` the makefile for testing on CPU only (run `make -f Makefile1`)
