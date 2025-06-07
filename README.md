@@ -23,6 +23,7 @@ Please note that the commits on Github are not completely representative of the 
 - `simpleGPU.cu` the simple sequential implementation on GPU with wavefront approach on anti-diagonals
 - `cudaSmithM.cu` a second version of the simple sequential implementation on GPU (we had a miscommunication and both of us took that approach on GPU)
 - `cudaLazy.cpp` the parallelised lazy implementation of the algorithm on GPU
+- `smithDiagonalGPU.cu` the **working** version of the wavefront approach on anti-diagonals on GPU, with high performance (and speedup)
 
 ### Testing
 - `Makefile1` the makefile for testing on CPU only (run `make -f Makefile1`)
