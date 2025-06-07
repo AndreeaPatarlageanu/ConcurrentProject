@@ -12,7 +12,7 @@ Please note that the commits on Github are not completely representative of the 
 # Differents files
 
 ### CPU
-- `main.cpp` is the first sequential implementation of the parallel sequence alignement on CPU
+- `main.cpp` is the first sequential implementation of the parallel sequence alignement on CPU with wavefront approach on anti-diagonals
 - `lazySmith.cpp` is the sequential implementation of the Lazy Smith Algorithm
 - `lazySmith_parallel_threads.cpp` is the parallel version of the Lazy Smith algorithm using threads
 - `lazySmith_parallel_future.cpp` is the parallel version of the Lazy Smith algorithm using `future` but it is **NOT WORKING**
