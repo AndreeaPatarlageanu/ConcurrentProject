@@ -12,13 +12,13 @@ Please note that the commits on Github are not completely representative of the 
 # Differents files
 
 ### CPU
-- `main.cpp` is the first sequential implementation of the parallel sequence alignement on CPU with wavefront approach on anti-diagonals
+- `main.cpp` is the first sequential implementation of the parallel sequence alignement on CPU
 - `lazySmith.cpp` is the sequential implementation of the Lazy Smith Algorithm
 - `lazySmith_parallel_threads.cpp` is the parallel version of the Lazy Smith algorithm using threads
 - `lazySmith_parallel_future.cpp` is the parallel version of the Lazy Smith algorithm using `future` but it is **NOT WORKING**
 
 ### GPU
-- `simpleGPU.cu` the simple sequential implementation on GPU
+- `simpleGPU.cu` the simple sequential implementation on GPU with wavefront approach on anti-diagonals
 - `cudaSmithM.cu` a second version of the simple sequential implementation on GPU (we had a miscommunication and both of us took that approach on GPU)
 - `cudaLazy.cpp` the parallelised lazy implementation of the algorithm on GPU
 
