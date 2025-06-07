@@ -5,6 +5,8 @@ CSE305 Project: Parallel sequence alignment
 
 During this project, we worked on **local** parallel sequence alignement with **affine gap penalty**, with the set of characters `{A, C, G, T}`. We focused on the computation of the score and not the alignement it-self. We implemented the Smith-Waterman algorithm, which is a dynamic programming algorithm. Because of that, parallelization of this algorithm requires some thinking. We first implemented a simple sequential version on CPU, then we introduced the lazy computation of the matrices. We worked on parallelizing those algorithms, and executing them on GPU.
 
+We worked together on implementation of several algorithms, starting first with CPU and then working on the GPU code. We decided on the work to be done as we advanced in the project, and met in person at least once a week. 
+
 # Organisation of the project and comments
 
 Please note that the commits on Github are not completely representative of the work done by each of the group members, as Andreea and Joanne wrote together some of the files but committed from a single computer.
